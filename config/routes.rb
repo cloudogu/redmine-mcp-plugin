@@ -1,0 +1,1 @@
+post 'mcp', to: 'mcp#index'

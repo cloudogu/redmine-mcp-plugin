@@ -1,57 +1,38 @@
-class GreetingTool < MCP::Tool
-  description "A tool that greets the user."
-  input_schema(
-    properties: {
-      user: { type: "string" },
-    },
-    required: ["user"]
-  )
-
+class RedmineTool < MCP::Tool
   class << self
-    def call(user:, server_context:)
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: "Hello #{user}",
-      }])
-    end
-  end
-end
+    def render_template(server_context, template, vars)
+      controller = server_context[:controller]
 
-class MeTool < MCP::Tool
-  description "Get details about the currently authenticated user."
-  input_schema(
-    properties: {},
-    required: []
-  )
-
-  class << self
-    def call(server_context:)
-      controller = Thread.current[:mcp_controller]
-      
       unless controller
         return MCP::Tool::Response.new([{ type: "text", text: "Error: No controller context available." }])
       end
 
-      user = User.current
-      # Set @user instance variable on the controller so the view can access it
-      controller.instance_variable_set(:@user, user)
+      vars.each do |key, value|
+        controller.instance_variable_set("@#{key}".to_sym, value)
+      end
 
       # Fake the format to json/api so Redmine's builder kicks in
-      controller.params[:format] = 'json'
+      controller.params[:format] = "json"
 
-      json_string = ""
-      begin
-        # Render the existing Redmine view 'app/views/my/account.api.rsb'
-        json_string = controller.render_to_string(template: 'my/account', formats: [:api])
-      rescue => e
-        Rails.logger.error "MeTool Rendering Error: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-        json_string = "Error rendering view: #{e.message}"
-      end
+      return controller.render_to_string(template: template, formats: [:api])
+    end
+  end
+end
+
+class MeTool < RedmineTool
+  description "Get details about the currently authenticated user."
+  input_schema(
+    properties: {},
+    required: [],
+  )
+
+  class << self
+    def call(server_context:)
+      json_string = render_template server_context, "my/account", { user: User.current }
 
       MCP::Tool::Response.new([{
         type: "text",
-        text: json_string
+        text: json_string,
       }])
     end
   end
@@ -62,18 +43,17 @@ class McpController < ApplicationController
   accept_api_auth :index
   # skip CSRF tokens verification for MCP Server
   skip_before_action :verify_authenticity_token
-  
+
   # Import CustomFieldsHelper so render_api_custom_values is available in views
   helper :custom_fields
 
   def index
-    Thread.current[:mcp_controller] = self
-
     server = MCP::Server.new(
       name: "redmine",
       title: "Redmine MCP Server",
       version: "1.0.0",
-      tools: [GreetingTool, MeTool],
+      tools: [MeTool],
+      server_context: { controller: self },
     )
 
     render(json: server.handle_json(request.body.read))

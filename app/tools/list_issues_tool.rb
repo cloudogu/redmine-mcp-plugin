@@ -3,6 +3,7 @@ class ListIssuesTool < RedmineTool
   input_schema(
     properties: {
       project_id: { type: "integer" },
+      tracker_id: { type: "integer" },
       offset: { type: "integer", default: 0 },
       limit: { type: "integer", default: 100 },
     },
@@ -10,11 +11,17 @@ class ListIssuesTool < RedmineTool
   )
 
   class << self
-    def call(server_context:, project_id: nil, offset:, limit:)
+    def call(server_context:, project_id: nil, tracker_id: nil, offset:, limit:)
+      filters = {}
+
+      if tracker_id
+        filters['tracker_id'] = {:operator => '=', :values => [tracker_id]}
+      end
+
       query = IssueQuery.new(
         :name => "_",
-        # if project_id does not exist, it will list issues from all projects
         :project_id => project_id,
+        :filters => filters
       )
 
       issue_count = query.issue_count

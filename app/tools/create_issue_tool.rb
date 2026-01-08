@@ -35,14 +35,14 @@ class CreateIssueTool < RedmineTool
       user = User.current
 
       project = Project.find_by_id(project_id)
-      return error("could not find project with ID #{project_id}") unless project
+      return error_response("could not find project with ID #{project_id}") unless project
 
       unless user.allowed_to?(:add_issues, project, :global => true)
-        return error("user not allowed to add issues to project with ID #{project_id}")
+        return error_response("user not allowed to add issues to project with ID #{project_id}")
       end
 
       tracker = Tracker.find_by_id(tracker_id)
-      return error("could not find tracker with ID #{tracker_id}") unless tracker
+      return error_response("could not find tracker with ID #{tracker_id}") unless tracker
 
       issue = Issue.new(
         project: project,
@@ -72,7 +72,7 @@ class CreateIssueTool < RedmineTool
           text: json_string
         }])
       else
-        error(issue.errors.full_messages)
+        error_response(issue.errors.full_messages.join())
       end
     end
   end

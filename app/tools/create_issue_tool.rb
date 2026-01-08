@@ -2,15 +2,32 @@ class CreateIssueTool < RedmineTool
   description "Create an issue"
   input_schema(
     properties: {
-      project_id: { type: "integer" },
-      tracker_id: { type: "integer" },
-      status_id: { type: "integer" },
-      priority_id: { type: "integer" },
-      subject: { type: "string" },
-      description: { type: "string" },
-
+      project_id: {
+        type: "integer",
+        description: "Numeric Redmine project ID in which the issue will be created. This must be a project where the authenticated user has permission to add issues."
+      },
+      tracker_id: {
+        type: "integer",
+        description: "Tracker ID to use for the issue (e.g. Bug, Feature, Support). The tracker must be enabled for the specified project."
+      },
+      status_id: {
+        type: "integer",
+        description: "Optional issue status ID. If omitted, tracker's default issue status will be used."
+      },
+      priority_id: {
+        type: "integer",
+        description: "Optional issue priority ID. If omitted, Redmine's default or middle priority will be used."
+      },
+      subject: {
+        type: "string",
+        description: "Short summary of the issue. This is a required field and must not be empty."
+      },
+      description: {
+        type: "string",
+        description: "Detailed description of the issue. Supports the same formatting as Redmine issue descriptions. Optional."
+      }
     },
-    required: ["project_id", "tracker_id", "subject"],
+    required: %w[project_id tracker_id subject]
   )
 
   class << self
@@ -18,14 +35,14 @@ class CreateIssueTool < RedmineTool
       user = User.current
 
       project = Project.find_by_id(project_id)
-      return error("Unknown project") unless project
+      return error("could not find project with ID #{project_id}") unless project
 
       unless user.allowed_to?(:add_issues, project, :global => true)
-        return error("User not allowed to project")
+        return error("user not allowed to add issues to project with ID #{project_id}")
       end
 
       tracker = Tracker.find_by_id(tracker_id)
-      return error("Unknown tracker") unless tracker
+      return error("could not find tracker with ID #{tracker_id}") unless tracker
 
       issue = Issue.new(
         project: project,
@@ -52,7 +69,7 @@ class CreateIssueTool < RedmineTool
 
         MCP::Tool::Response.new([{
           type: "text",
-          text: json_string,
+          text: json_string
         }])
       else
         error(issue.errors.full_messages)

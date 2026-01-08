@@ -4,7 +4,7 @@ class RedmineTool < MCP::Tool
       controller = server_context[:controller]
 
       unless controller
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: No controller context available." }])
+        return MCP::Tool::Response.new([{ type: "text", text: "Error: No controller context available." }], error: true)
       end
 
       vars.each do |key, value|
@@ -14,7 +14,12 @@ class RedmineTool < MCP::Tool
       # Fake the format to json/api so Redmine's builder kicks in
       controller.params[:format] = "json"
 
-      return controller.render_to_string(template: template, formats: [:api])
+      begin
+        result = controller.render_to_string(template: template, formats: [:api])
+        result.presence || "Error: Template rendered an empty response."
+      rescue StandardError => e
+        "Error rendering template #{template}: #{e.message}"
+      end
     end
   end
 

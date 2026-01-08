@@ -9,8 +9,9 @@ class FindUseridTool < RedmineTool
 
   class << self
     def call(server_context:, query:)
-      users = User.where("LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(login) LIKE ?",
-                         "%#{query.downcase}%", "%#{query.downcase}%", "%#{query.downcase}%")
+      user = User.current
+      users = User.where("(LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(login) LIKE ?) AND id IN (SELECT user_id FROM #{Member.table_name} WHERE project_id IN (?))",
+                         "%#{query.downcase}%", "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
 
       if users.empty?
         return MCP::Tool::Response.new([{

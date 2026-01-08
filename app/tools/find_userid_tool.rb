@@ -16,7 +16,7 @@ class FindUseridTool < RedmineTool
         return MCP::Tool::Response.new([{
                  type: "text",
                  text: "Could not find any user matching '#{query}'.",
-               }])
+               }], error: true)
       end
 
       mappedUsers = users.map do |user|

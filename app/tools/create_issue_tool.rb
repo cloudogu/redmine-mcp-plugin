@@ -1,5 +1,5 @@
 class CreateIssueTool < RedmineTool
-  description "Create an issue."
+  description "Create an issue"
   input_schema(
     properties: {
       project_id: { type: "integer" },
@@ -48,13 +48,11 @@ class CreateIssueTool < RedmineTool
       end
 
       if issue.save
+        json_string = render_template server_context, "issues/show", { issue: issue }
+
         MCP::Tool::Response.new([{
           type: "text",
-          text: {
-            id: issue.id,
-            tracker: issue.tracker.to_s,
-            subject: issue.subject,
-          }.to_json,
+          text: json_string,
         }])
       else
         error(issue.errors.full_messages)

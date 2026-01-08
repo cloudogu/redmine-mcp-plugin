@@ -17,4 +17,14 @@ class RedmineTool < MCP::Tool
       return controller.render_to_string(template: template, formats: [:api])
     end
   end
+
+  def error(content)
+    MCP::Tool::Response.new(
+      [{
+         type: "text",
+         text: content.to_json
+       }],
+      error: true
+    )
+  end
 end

@@ -26,7 +26,7 @@ class McpController < ApplicationController
       name: "redmine",
       title: "Redmine MCP Server",
       version: "1.0.0",
-      tools: [MeTool],
+      tools: [MeTool, ListIssuesTool],
       server_context: { controller: self },
       configuration: config,
     )

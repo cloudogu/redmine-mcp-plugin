@@ -25,13 +25,31 @@ class CreateIssueTool < RedmineTool
       description: {
         type: "string",
         description: "Detailed description of the issue. Supports the same formatting as Redmine issue descriptions. Optional."
+      },
+      custom_fields: {
+        type: "array",
+        description: "Optional list of Redmine custom field values to set on the issue. Each entry specifies the custom field ID and the value to assign. Only custom fields that are enabled for issues, visible to the user, and applicable to the selected project and tracker will be accepted.",
+        items: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              description: "ID of the Redmine custom field."
+            },
+            value: {
+              type: "string",
+              description: "Value to assign to the custom field."
+            }
+          },
+          required: %w[id, value]
+        }
       }
     },
     required: %w[project_id tracker_id subject]
   )
 
   class << self
-    def call(server_context:, project_id:, tracker_id:, status_id: nil, priority_id: nil, subject:, description: nil)
+    def call(server_context:, project_id:, tracker_id:, status_id: nil, priority_id: nil, subject:, description: nil, custom_fields: nil)
       user = User.current
 
       project = Project.find_by_id(project_id)
@@ -65,14 +83,10 @@ class CreateIssueTool < RedmineTool
       end
 
       if issue.save
-        json_string = render_template server_context, "issues/show", { issue: issue }
-
-        MCP::Tool::Response.new([{
-          type: "text",
-          text: json_string
-        }])
+        json_string = render_template_json server_context, "issues/show", { issue: issue }
+        text_response(json_string)
       else
-        error_response(issue.errors.full_messages.join())
+        error_response(issue.errors.full_messages.join(","))
       end
     end
   end

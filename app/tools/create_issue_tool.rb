@@ -12,7 +12,7 @@ class CreateIssueTool < RedmineTool
       },
       status_id: {
         type: "integer",
-        description: "Optional issue status ID. If omitted, tracker's default issue status will be used."
+        description: "Optional issue status ID. If omitted, default issue status will be used."
       },
       priority_id: {
         type: "integer",
@@ -25,6 +25,22 @@ class CreateIssueTool < RedmineTool
       description: {
         type: "string",
         description: "Detailed description of the issue. Supports the same formatting as Redmine issue descriptions. Optional."
+      },
+      category_id: {
+        type: "integer",
+        description: "Optional issue category ID. Categories are project-specific classifications (e.g. 'Backend', 'UI', 'Documentation'). The category must belong to the specified project. If omitted, no category will be assigned to the issue."
+      },
+      fixed_version_id: {
+        type: "integer",
+        description: "Optional ID of the target version for the issue (also known as 'Fixed Version'). 'Fixed Version' is the historical name and is still used internally and in the Redmine REST API. The version must belong to the specified project and be open or otherwise available for issue assignment."
+      },
+      assigned_to_id: {
+        type: "integer",
+        description: "Optional user ID to assign the issue to. The user must be a member of the project (or otherwise eligible for assignment based on project settings). Currently, assignment is only supported by numeric user ID; assigning by login or name is not supported."
+      },
+      parent_issue_id: {
+        type: "integer",
+        description: "Optional ID of the parent issue. The parent issue must belong to the same project, and the authenticated user must have permission to manage subtasks in the project."
       },
       custom_fields: {
         type: "array",
@@ -41,16 +57,33 @@ class CreateIssueTool < RedmineTool
               description: "Value to assign to the custom field."
             }
           },
-          required: %w[id, value]
+          required: %w[id value]
         }
+      },
+      watcher_user_ids: {
+        type: "array",
+        description: "Optional array of user IDs to add as watchers of the issue. Watchers will receive notifications about updates to the issue. The authenticated user must have permission to add watchers, and each user ID must refer to a valid user who is allowed to watch issues in the project.",
+        items: {
+          type: "integer"
+        }
+      },
+      is_private: {
+        type: "boolean",
+        description: "Optional flag indicating whether the issue is private. When set to true, the issue will only be visible to users with permission to view private issues. Setting this field requires the appropriate permissions in the project."
+      },
+      estimated_hours: {
+        type: "number",
+        description: "Optional estimated number of hours required to complete the issue. This value represents the total expected effort and is typically used for planning and reporting. The value must be a non-negative number."
       }
     },
     required: %w[project_id tracker_id subject]
   )
 
   class << self
-    def call(server_context:, project_id:, tracker_id:, status_id: nil, priority_id: nil, subject:, description: nil, custom_fields: nil)
+    def call(server_context:, **kwargs)
       user = User.current
+
+      project_id = kwargs[:project_id]
 
       project = Project.find_by_id(project_id)
       return error_response("could not find project with ID #{project_id}") unless project
@@ -59,28 +92,11 @@ class CreateIssueTool < RedmineTool
         return error_response("user not allowed to add issues to project with ID #{project_id}")
       end
 
-      tracker = Tracker.find_by_id(tracker_id)
-      return error_response("could not find tracker with ID #{tracker_id}") unless tracker
-
       issue = Issue.new(
-        project: project,
-        author: user,
-        subject: subject,
-        description: description,
-        tracker: tracker,
+        author: user
       )
 
-      if status_id.present?
-        issue.status_id = status_id
-      else
-        issue.status = tracker.default_status
-      end
-
-      if priority_id.present?
-        issue.priority_id = priority_id
-      else
-        issue.priority = IssuePriority.default_or_middle
-      end
+      issue.safe_attributes=(kwargs.compact)
 
       if issue.save
         json_string = render_template_json server_context, "issues/show", { issue: issue }

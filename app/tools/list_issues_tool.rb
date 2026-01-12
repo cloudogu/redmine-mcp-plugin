@@ -13,7 +13,7 @@ class ListIssuesTool < RedmineTool
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, offset:, limit:)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, offset:0, limit:100)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?

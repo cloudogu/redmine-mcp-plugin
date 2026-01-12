@@ -2,7 +2,7 @@ class FindCustomfieldidTool < RedmineTool
   description "Find the id for a custom field"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the custom field name" },
+      query: { type: "string", description: "The search string to find a specific custom field by name. Use this to find the numeric ID of a custom field." },
     },
     required: ["query"],
   )

@@ -2,7 +2,7 @@ class FindPriorityidTool < RedmineTool
   description "Find the id for an issue priority"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the priority name" },
+      query: { type: "string", description: "The search string to find a specific issue priority (e.g., 'Low', 'Normal', 'High', 'Urgent'). Use this to find the numeric ID of a priority." },
     },
     required: ["query"],
   )

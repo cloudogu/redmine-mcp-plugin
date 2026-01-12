@@ -2,7 +2,7 @@ class FindTrackeridTool < RedmineTool
   description "Find the id for a tracker"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the tracker name" },
+      query: { type: "string", description: "The search string to find a specific tracker (e.g., 'Bug', 'Feature', 'Support'). Use this to find the numeric ID of a tracker." },
     },
     required: ["query"],
   )

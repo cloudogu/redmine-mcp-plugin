@@ -2,7 +2,7 @@ class FindProjectidTool < RedmineTool
   description "Find the id for a project via its name or identifier"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the projects name or identifier" },
+      query: { type: "string", description: "The search string for the project's name or its unique identifier (slug). Use this to find the numeric ID of a project." },
     },
     required: ["query"],
   )

@@ -2,13 +2,14 @@ class FindStatusidTool < RedmineTool
   description "Find the id for an issue status"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the status name" },
+      project_id: { type: "integer", description: "The numeric ID of the project. Use this to find statuses relevant to a specific project." },
+      query: { type: "string", description: "The search term to find a specific issue status (e.g., 'New', 'In Progress', 'Resolved')." },
     },
-    required: ["query"],
+    required: ["project_id", "query"],
   )
 
   class << self
-    def call(server_context:, query:)
+    def call(server_context:, project_id:, query:)
       statuses = IssueStatus.where("LOWER(name) LIKE ?", "%#{query.downcase}%")
 
       if statuses.empty?

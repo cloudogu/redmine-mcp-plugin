@@ -2,7 +2,7 @@ class FindUseridTool < RedmineTool
   description "Find the id for a user"
   input_schema(
     properties: {
-      query: { type: "string", description: "A part of the user's login, first name or last name" },
+      query: { type: "string", description: "The search string for the user's login, first name, or last name. Use this to find the numeric ID of a user." },
     },
     required: ["query"],
   )

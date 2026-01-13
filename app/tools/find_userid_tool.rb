@@ -1,8 +1,8 @@
 class FindUseridTool < RedmineTool
-  description "Find the id for a user"
+  description "Searches for a user by login, first name, or last name to retrieve their numeric ID."
   input_schema(
     properties: {
-      query: { type: "string", description: "The search string for the user's login, first name, or last name. Use this to find the numeric ID of a user." },
+      query: { type: "string", description: "The search string matching the user's login, first name, or last name." },
     },
     required: ["query"],
   )
@@ -21,7 +21,7 @@ class FindUseridTool < RedmineTool
                }], error: true)
       end
 
-      mappedUsers = users.map do |user|
+      mapped_users = users.map do |user|
         { id: user.id,
           login: user.login,
           firstname: user.firstname,
@@ -30,7 +30,7 @@ class FindUseridTool < RedmineTool
 
       MCP::Tool::Response.new([{
         type: "text",
-        text: mappedUsers.to_json,
+        text: mapped_users.to_json,
       }])
     end
   end

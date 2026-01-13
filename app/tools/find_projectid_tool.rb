@@ -1,8 +1,8 @@
 class FindProjectidTool < RedmineTool
-  description "Find the id for a project via its name or identifier"
+  description "Searches for a project by name or identifier to retrieve its numeric ID."
   input_schema(
     properties: {
-      query: { type: "string", description: "The search string for the project's name or its unique identifier (slug). Use this to find the numeric ID of a project." },
+      query: { type: "string", description: "The partial or full name, or unique identifier (slug) of the project." },
     },
     required: ["query"],
   )
@@ -22,7 +22,7 @@ class FindProjectidTool < RedmineTool
                }], error: true)
       end
 
-      mappedProjects = projects.map do |project|
+      mapped_projects = projects.map do |project|
         {
           id: project.id,
           name: project.name,
@@ -32,7 +32,7 @@ class FindProjectidTool < RedmineTool
 
       MCP::Tool::Response.new([{
         type: "text",
-        text: mappedProjects.to_json,
+        text: mapped_projects.to_json,
       }])
     end
   end

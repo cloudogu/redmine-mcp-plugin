@@ -29,12 +29,14 @@ class McpController < ApplicationController
       tools: [
         MeTool,
         ListIssuesTool,
+        ListCustomFieldsTool,
+        ListTrackersTool,
+        ListStatusTool,
+        ListPrioritiesTool,
+        ListCategoriesTool,
         FindUseridTool,
         FindProjectidTool,
-        FindTrackeridTool,
-        FindStatusidTool,
-        FindPriorityidTool,
-        FindCustomfieldidTool
+        GetIssueTool,
       ],
       server_context: { controller: self },
       configuration: config,

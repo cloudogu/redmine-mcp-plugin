@@ -1,13 +1,13 @@
 class ListIssuesTool < RedmineTool
-  description "List issues"
+  description "Retrieves a list of issues based on various filters."
   input_schema(
     properties: {
-      project_id: { type: "integer", description: "Optional numeric ID of the project to filter issues." },
-      tracker_id: { type: "integer", description: "Optional numeric ID of the tracker (e.g., Bug, Feature) to filter issues." },
-      assigned_to_id: { type: "string", description: "Optional user ID to filter issues assigned to a specific person. Use 'me' for the currently authenticated user." },
-      authored_by_id: { type: "string", description: "Optional user ID to filter issues created by a specific person. Use 'me' for the currently authenticated user." },
-      offset: { type: "integer", default: 0, description: "The number of issues to skip for pagination (default: 0)." },
-      limit: { type: "integer", default: 100, description: "The maximum number of issues to return per request (default: 100, max: 100)." },
+      project_id: { type: "integer", description: "The numeric ID of the project to filter by." },
+      tracker_id: { type: "integer", description: "The numeric ID of the tracker to filter by." },
+      assigned_to_id: { type: "string", description: "The numeric ID of the assigned user, or 'me'." },
+      authored_by_id: { type: "string", description: "The numeric ID of the author, or 'me'." },
+      offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
+      limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
     },
     required: [],
   )

@@ -12,17 +12,11 @@ class GetIssueTool < RedmineTool
       begin
         issue = Issue.find(issue_id)
       rescue Exception
-        return MCP::Tool::Response.new([{
-          type: "text",
-          text: "Error: No issue found with ID #{issue_id}."
-        }], error: true)
+        return error_response("No issue found with ID #{issue_id}.")
       end
 
       unless issue.visible?
-        return MCP::Tool::Response.new([{
-          type: "text",
-          text: "Error: You do not have permission to view issue ##{issue_id}."
-        }], error: true)
+        return error_response("You do not have permission to view issue ##{issue_id}.")
       end
 
       issues = [issue]
@@ -34,10 +28,7 @@ class GetIssueTool < RedmineTool
         limit: 1,
       }
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: json_string,
-      }])
+      text_response(json_string)
     end
   end
 end

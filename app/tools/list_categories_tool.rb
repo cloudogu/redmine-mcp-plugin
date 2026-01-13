@@ -12,17 +12,17 @@ class ListCategoriesTool < RedmineTool
       project = Project.find_by(id: project_id)
 
       unless project
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: Project with ID #{project_id} not found." }], error: true)
+        return error_response("Project with ID #{project_id} not found.")
       end
 
       unless project.visible?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: You do not have permission to access Project ID #{project_id}." }], error: true)
+        return error_response("You do not have permission to access Project ID #{project_id}.")
       end
 
       categories = project.issue_categories
 
       if categories.empty?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: No categories found for project ID #{project_id}." }], error: true)
+        return error_response("No categories found for project ID #{project_id}.")
       end
       
       formatted_categories = categories.map do |s|
@@ -33,10 +33,7 @@ class ListCategoriesTool < RedmineTool
         }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: formatted_categories.to_json,
-      }])
+      text_response(formatted_categories.to_json)
     end
   end
 end

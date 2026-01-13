@@ -11,10 +11,7 @@ class ListPrioritiesTool < RedmineTool
       priorities = IssuePriority.active.sorted
 
       if priorities.empty?
-        MCP::Tool::Response.new([{
-          type: "text",
-          text: "Error: Could not find any priorities.",
-        }], error: true)
+        return error_response("Could not find any priorities.")
       end
 
       formatted_priorities = priorities.map do |p|
@@ -25,10 +22,7 @@ class ListPrioritiesTool < RedmineTool
         }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: formatted_priorities.to_json,
-      }])
+      text_response(formatted_priorities.to_json)
     end
   end
 end

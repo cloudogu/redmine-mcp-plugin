@@ -37,6 +37,7 @@ class McpController < ApplicationController
         FindUseridTool,
         FindProjectidTool,
         GetIssueTool,
+        CreateIssueTool,
       ],
       server_context: { controller: self },
       configuration: config,

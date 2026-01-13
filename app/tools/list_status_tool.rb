@@ -12,13 +12,13 @@ class ListStatusTool < RedmineTool
       tracker = Tracker.find_by(id: tracker_id)
 
       unless tracker
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: Tracker with ID #{tracker_id} not found." }], error: true)
+        return error_response("Tracker with ID #{tracker_id} not found.")
       end
 
       statuses = tracker.issue_statuses
 
       if statuses.empty?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: No statuses found for tracker ID #{tracker_id}." }], error: true)
+        return error_response("No statuses found for tracker ID #{tracker_id}.")
       end
         
       formatted_statuses = statuses.map do |s|
@@ -29,10 +29,7 @@ class ListStatusTool < RedmineTool
         }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: formatted_statuses.to_json,
-      }])
+      text_response(formatted_statuses.to_json)
     end
   end
 end

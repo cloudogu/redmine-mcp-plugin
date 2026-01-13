@@ -15,10 +15,7 @@ class FindUseridTool < RedmineTool
                          "%#{query.downcase}%", "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
 
       if users.empty?
-        return MCP::Tool::Response.new([{
-                 type: "text",
-                 text: "Could not find any user matching '#{query}'.",
-               }], error: true)
+        return error_response("Could not find any user matching '#{query}'.")
       end
 
       mapped_users = users.map do |user|
@@ -28,10 +25,7 @@ class FindUseridTool < RedmineTool
           lastname: user.lastname }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: mapped_users.to_json,
-      }])
+      text_response(mapped_users.to_json)
     end
   end
 end

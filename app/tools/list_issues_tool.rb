@@ -17,11 +17,11 @@ class ListIssuesTool < RedmineTool
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
-          return MCP::Tool::Response.new([{ type: "text", text: "Error: Project with ID #{project_id} not found." }], error: true)
+          return error_response("Project with ID #{project_id} not found.")
         end
 
         unless project.visible?
-          return MCP::Tool::Response.new([{ type: "text", text: "Error: You do not have permission to access Project ID #{project_id}." }], error: true)
+          return error_response("You do not have permission to access Project ID #{project_id}.")
         end
       end
 
@@ -50,7 +50,7 @@ class ListIssuesTool < RedmineTool
       )
 
       unless query.valid?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: Invalid issue query parameters." }], error: true)
+          return error_response("Invalid issue query parameters.")
       end
 
       issue_count = query.issue_count
@@ -63,10 +63,7 @@ class ListIssuesTool < RedmineTool
         limit: limit,
       }
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: json_string,
-      }])
+      return text_response(json_string)
     end
   end
 end

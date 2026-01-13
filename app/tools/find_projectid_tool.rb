@@ -16,10 +16,7 @@ class FindProjectidTool < RedmineTool
         "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
 
       if projects.empty?
-        return MCP::Tool::Response.new([{
-                 type: "text",
-                 text: "Could not find any projects matching '#{query}'.",
-               }], error: true)
+        return error_response("Could not find any projects matching '#{query}'.")
       end
 
       mapped_projects = projects.map do |project|
@@ -30,10 +27,7 @@ class FindProjectidTool < RedmineTool
         }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: mapped_projects.to_json,
-      }])
+      text_response(mapped_projects.to_json)
     end
   end
 end

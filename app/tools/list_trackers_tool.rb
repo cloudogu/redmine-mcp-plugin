@@ -12,25 +12,17 @@ class ListTrackersTool < RedmineTool
       project = Project.find_by(id: project_id)
 
       if project.nil?
-        return MCP::Tool::Response.new([{
-          type: "text",
-          text: "Error: Project with ID #{project_id} not found."
-        }],
-          error: true)
+        return error_response("Project with ID #{project_id} not found.")
       end
 
       unless project.visible?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: You do not have permission to access Project ID #{project_id}." }], error: true)
+        return error_response("You do not have permission to access Project ID #{project_id}.")
       end
 
       trackers = project.trackers.sorted
 
       if trackers.empty?
-        return MCP::Tool::Response.new([{
-          type: "text",
-          text: "Error: Project with ID #{project_id} not found."
-        }],
-          error: true)
+        return error_response("Project with ID #{project_id} not found.")
       end
 
       formatted_trackers = trackers.map do |t|
@@ -41,10 +33,7 @@ class ListTrackersTool < RedmineTool
         }
       end
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: formatted_trackers.to_json,
-      }])
+      text_response(formatted_trackers.to_json)
     end
   end
 end

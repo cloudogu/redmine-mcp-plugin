@@ -1,1 +1,1 @@
-gem 'mcp'
+gem 'mcp', "0.4.0"

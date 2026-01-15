@@ -1,5 +1,5 @@
 class MeTool < RedmineTool
-  description "Get details about the currently authenticated user."
+  description "Retrieves details about the currently authenticated user (me)."
   input_schema(
     properties: {},
     required: [],

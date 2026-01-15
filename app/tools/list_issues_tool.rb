@@ -39,9 +39,13 @@ class ListIssuesTool < RedmineTool
         filters["author_id"] = { :operator => "=", :values => [authored_by_id] }
       end
 
-      # Enforce reasonable limits
-      limit = [limit.to_i, 100].min
-      offset = [offset.to_i, 0].max
+      if offset < 0
+        return error_response("Offset must be a non-negative integer.")
+      end
+
+      if limit > 100
+        return error_response("Limit cannot exceed 100.")
+      end
 
       query = IssueQuery.new(
         :name => "_",
@@ -50,7 +54,7 @@ class ListIssuesTool < RedmineTool
       )
 
       unless query.valid?
-          return error_response("Invalid issue query parameters.")
+        return error_response("Invalid issue query parameters.")
       end
 
       issue_count = query.issue_count

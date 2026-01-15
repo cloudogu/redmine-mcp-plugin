@@ -1,27 +1,45 @@
 class ListIssuesTool < RedmineTool
-  description "List issues"
+  description "Retrieves a list of issues based on various filters."
   input_schema(
     properties: {
-      project_id: { type: "integer", description: "Get issues from the project with the given id" },
-      tracker_id: { type: "integer", description: "Get issues from the tracker with the given id" },
-      assigned_to_id: { type: "string", description: "Get issues which are assigned to the given user id. 'me' can be used instead an ID to fetch all issues from the logged in user" },
-      authored_by_id: { type: "string", description: "Get issues which are authored by the given user id. 'me' can be used instead an ID to fetch all issues from the logged in user" },
-      offset: { type: "integer", default: 0, description: "The number of issues to skip" },
-      limit: { type: "integer", default: 100, description: "The maximum number of issues to return" },
+      project_id: { type: "integer", description: "The numeric ID of the project to filter by." },
+      tracker_id: { type: "integer", description: "The numeric ID of the tracker to filter by." },
+      assigned_to_id: { type: "string", description: "The numeric ID of the assigned user, or 'me'." },
+      authored_by_id: { type: "string", description: "The numeric ID of the author, or 'me'." },
+      custom_fields: {
+        type: "array",
+        description: "List of custom field filters to apply.",
+        items: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              description: "ID of the Redmine custom field.",
+            },
+            value: {
+              type: "string",
+              description: "Value to assign to the custom field.",
+            },
+          },
+          required: %w[id value],
+        },
+      },
+      offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
+      limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
     },
     required: [],
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, offset:0, limit:100)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, custom_fields: nil, offset: 0, limit: 100)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
-          return MCP::Tool::Response.new([{ type: "text", text: "Error: Project with ID #{project_id} not found." }], error: true)
+          return error_response("Project with ID #{project_id} not found.")
         end
 
         unless project.visible?
-          return MCP::Tool::Response.new([{ type: "text", text: "Error: You do not have permission to access Project ID #{project_id}." }], error: true)
+          return error_response("You do not have permission to access Project ID #{project_id}.")
         end
       end
 
@@ -39,9 +57,26 @@ class ListIssuesTool < RedmineTool
         filters["author_id"] = { :operator => "=", :values => [authored_by_id] }
       end
 
-      # Enforce reasonable limits
-      limit = [limit.to_i, 100].min
-      offset = [offset.to_i, 0].max
+      if custom_fields
+        custom_fields.each do |cf|
+          custom_field = IssueCustomField.find_by(id: cf[:id])
+          unless custom_field
+            return error_response("The custom field with id #{cf[:id]} was not found")
+          end
+          if not custom_field.is_filter?
+            return error_response("The custom field with id #{cf[:id]} is not filterable")
+          end
+          filters["cf_#{cf[:id]}"] = { :operator => "=", :values => [cf[:value]] }
+        end
+      end
+
+      if offset < 0
+        return error_response("Offset must be a non-negative integer.")
+      end
+
+      if limit > 100
+        return error_response("Limit cannot exceed 100.")
+      end
 
       query = IssueQuery.new(
         :name => "_",
@@ -50,7 +85,7 @@ class ListIssuesTool < RedmineTool
       )
 
       unless query.valid?
-        return MCP::Tool::Response.new([{ type: "text", text: "Error: Invalid issue query parameters." }], error: true)
+        return error_response("Invalid issue query parameters.")
       end
 
       issue_count = query.issue_count
@@ -63,10 +98,7 @@ class ListIssuesTool < RedmineTool
         limit: limit,
       }
 
-      MCP::Tool::Response.new([{
-        type: "text",
-        text: json_string,
-      }])
+      return text_response(json_string)
     end
   end
 end

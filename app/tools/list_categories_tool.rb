@@ -19,21 +19,13 @@ class ListCategoriesTool < RedmineTool
         return error_response("You do not have permission to access Project ID #{project_id}.")
       end
 
-      categories = project.issue_categories
+      categories = project.issue_categories.includes([:assigned_to])
 
-      if categories.empty?
-        return error_response("No categories found for project ID #{project_id}.")
-      end
-      
-      formatted_categories = categories.map do |s|
-        {
-          id: s.id,
-          name: s.name,
-          assigned_to_user_id: s.assigned_to_id
-        }
-      end
+      json = render_template(server_context, "issue_categories/index", {
+        categories: categories,
+      })
 
-      text_response(formatted_categories.to_json)
+      text_response(json)
     end
   end
 end

@@ -21,19 +21,11 @@ class ListTrackersTool < RedmineTool
 
       trackers = project.trackers.sorted
 
-      if trackers.empty?
-        return error_response("Project with ID #{project_id} not found.")
-      end
+      json = render_template(server_context, "trackers/index", {
+        trackers: trackers,
+      })
 
-      formatted_trackers = trackers.map do |t|
-        {
-          id: t.id,
-          name: t.name,
-          default_status: t.default_status&.name
-        }
-      end
-
-      text_response(formatted_trackers.to_json)
+      text_response(json)
     end
   end
 end

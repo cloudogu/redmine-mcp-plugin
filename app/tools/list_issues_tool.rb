@@ -6,6 +6,24 @@ class ListIssuesTool < RedmineTool
       tracker_id: { type: "integer", description: "The numeric ID of the tracker to filter by." },
       assigned_to_id: { type: "string", description: "The numeric ID of the assigned user, or 'me'." },
       authored_by_id: { type: "string", description: "The numeric ID of the author, or 'me'." },
+      custom_fields: {
+        type: "array",
+        description: "List of custom field filters to apply.",
+        items: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              description: "ID of the Redmine custom field.",
+            },
+            value: {
+              type: "string",
+              description: "Value to assign to the custom field.",
+            },
+          },
+          required: %w[id value],
+        },
+      },
       offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
       limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
     },
@@ -13,7 +31,7 @@ class ListIssuesTool < RedmineTool
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, offset: 0, limit: 100)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, custom_fields: nil, offset: 0, limit: 100)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
@@ -37,6 +55,12 @@ class ListIssuesTool < RedmineTool
 
       if authored_by_id
         filters["author_id"] = { :operator => "=", :values => [authored_by_id] }
+      end
+
+      if custom_fields
+        custom_fields.each do |cf|
+          filters["cf_#{cf[:id]}"] = { :operator => "=", :values => [cf[:value]] }
+        end
       end
 
       if offset < 0

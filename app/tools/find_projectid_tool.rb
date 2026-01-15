@@ -10,11 +10,9 @@ class FindProjectidTool < RedmineTool
   class << self
     def call(server_context:, query:)
       query.strip!
-      user = User.current
 
-      projects = Project.where("(LOWER(name) LIKE ? OR LOWER(identifier) LIKE ?) AND id IN (?)",
-                               "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
-
+      projects = Project.visible.like(query)
+                         
       mapped_projects = projects.map do |project|
         {
           id: project.id,

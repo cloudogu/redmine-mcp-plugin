@@ -16,20 +16,11 @@ class ListStatusTool < RedmineTool
       end
 
       statuses = tracker.issue_statuses
+      json = render_template(server_context, "issue_statuses/index", {
+        issue_statuses: statuses,
+      })
 
-      if statuses.empty?
-        return error_response("No statuses found for tracker ID #{tracker_id}.")
-      end
-        
-      formatted_statuses = statuses.map do |s|
-        {
-          id: s.id,
-          name: s.name,
-          is_closed: s.is_closed
-        }
-      end
-
-      text_response(formatted_statuses.to_json)
+      text_response(json)
     end
   end
 end

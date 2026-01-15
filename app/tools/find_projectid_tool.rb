@@ -7,17 +7,13 @@ class FindProjectidTool < RedmineTool
     required: ["query"],
   )
 
-  class << self 
+  class << self
     def call(server_context:, query:)
       query.strip!
       user = User.current
 
       projects = Project.where("(LOWER(name) LIKE ? OR LOWER(identifier) LIKE ?) AND id IN (?)",
-        "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
-
-      if projects.empty?
-        return error_response("Could not find any projects matching '#{query}'.")
-      end
+                               "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
 
       mapped_projects = projects.map do |project|
         {

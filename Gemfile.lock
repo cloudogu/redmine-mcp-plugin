@@ -13,11 +13,20 @@ GEM
     public_suffix (7.0.2)
 
 PLATFORMS
-  ruby
   x86_64-linux
+  arm64-darwin-24
+  ruby
 
 DEPENDENCIES
   mcp
 
+CHECKSUMS
+  addressable (2.8.8)
+  bigdecimal (4.0.1)
+  json-schema (6.1.0)
+  json_rpc_handler (0.1.1)
+  mcp (0.4.0)
+  public_suffix (7.0.2)
+
 BUNDLED WITH
-   2.5.22
+  4.0.3

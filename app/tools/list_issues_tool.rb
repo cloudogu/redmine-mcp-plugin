@@ -59,6 +59,13 @@ class ListIssuesTool < RedmineTool
 
       if custom_fields
         custom_fields.each do |cf|
+          custom_field = IssueCustomField.find_by(id: cf[:id])
+          unless custom_field
+            return error_response("The custom field with id #{cf[:id]} was not found")
+          end
+          if not custom_field.is_filter?
+            return error_response("The custom field with id #{cf[:id]} is not filterable")
+          end
           filters["cf_#{cf[:id]}"] = { :operator => "=", :values => [cf[:value]] }
         end
       end

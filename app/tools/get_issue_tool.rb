@@ -19,17 +19,11 @@ class GetIssueTool < RedmineTool
         return error_response("You do not have permission to view issue ##{issue_id}.")
       end
 
-      issues = [issue]
-      
-      json_string = render_template server_context, "issues/index", {
-        issues: issues,
-        issue_count: issues.size,
-        offset: 0,
-        limit: 1,
+      json_string = render_template server_context, "issues/show", {
+        issue: issue,
       }
 
       text_response(json_string)
     end
   end
 end
-

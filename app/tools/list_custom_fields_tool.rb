@@ -21,20 +21,13 @@ class ListCustomFieldsTool < RedmineTool
         return error_response("You do not have permission to access Project ID #{project_id}.")
       end
 
-      custom_fields = IssueCustomField.includes([:roles]).all.map do |cf|
-        if cf.visible_by?(project, User.current)
-          {
-            id: cf.id,
-            name: cf.name,
-          }
-        end
-      end.compact
+      custom_fields = IssueCustomField.all.includes([:trackers, :roles]).select { |cf| cf.visible_by?(project, User.current) }
 
-      if custom_fields.empty?
-        return error_response("Could not find any custom fields for project ID: #{project_id}")
-      end
+      json = render_template(server_context, "custom_fields/index", {
+        custom_fields: custom_fields,
+      })
 
-      text_response(custom_fields.to_json)
+      text_response(json)
     end
   end
 end

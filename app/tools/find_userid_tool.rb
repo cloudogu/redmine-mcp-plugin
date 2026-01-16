@@ -11,18 +11,20 @@ class FindUseridTool < RedmineTool
     def call(server_context:, query:)
       query.strip!
       user = User.current
-      users = User.where("(LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ? OR LOWER(login) LIKE ?) AND id IN (SELECT user_id FROM #{Member.table_name} WHERE project_id IN (?))",
-                         "%#{query.downcase}%", "%#{query.downcase}%", "%#{query.downcase}%", user.visible_project_ids)
+
+      users = User
+                .where(id: Member.where(project_id: user.visible_project_ids).select(:user_id))
+                .like(query)
 
       if users.empty?
         return error_response("Could not find any user matching '#{query}'.")
       end
 
-      mapped_users = users.map do |user|
-        { id: user.id,
-          login: user.login,
-          firstname: user.firstname,
-          lastname: user.lastname }
+      mapped_users = users.map do |u|
+        { id: u.id,
+          login: u.login,
+          firstname: u.firstname,
+          lastname: u.lastname }
       end
 
       text_response(mapped_users.to_json)

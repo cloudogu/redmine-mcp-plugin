@@ -11,7 +11,9 @@ class MeTool < RedmineTool
         return MCP::Tool::Response.new([{ type: "text", text: "Error: Tried to access account details without login." }], error: true)
       end
 
-      json_string = render_template server_context, "my/account", { user: User.current }
+      my_user = User.current
+      my_user.attributes.delete("api_key")
+      json_string = render_template server_context, "my/account", { user: my_user }
 
       MCP::Tool::Response.new([{
         type: "text",

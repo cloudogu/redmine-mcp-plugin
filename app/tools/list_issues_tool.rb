@@ -2,14 +2,20 @@ class ListIssuesTool < RedmineTool
   description "Retrieves a list of issues based on various filters."
   input_schema(
     properties: {
-      project_id: { type: "integer", description: "The numeric ID of the project to filter by." },
-      tracker_id: { type: "integer", description: "The numeric ID of the tracker to filter by." },
-      assigned_to_id: { type: "string", description: "The numeric ID of the assigned user, or 'me'." },
-      authored_by_id: { type: "string", description: "The numeric ID of the author, or 'me'." },
+      project_id: { type: "integer", description: "Project identifier. The numeric ID as an integer of the project to filter by." },
+      tracker_id: { type: "integer", description: "Tracker identifier. The numeric ID as an integer of the tracker to filter by." },
+      assigned_to_id: {
+        type: "string",
+        description: "Assigned user identifier. Provide the numeric Redmine user ID as a string, or the literal value 'me' to refer to the currently authenticated user."
+      },
+      authored_by_id: {
+        type: "string",
+        description: "Author identifier. Provide the numeric Redmine user ID as a string, or the literal value 'me' to refer to the currently authenticated user."
+      },
       status_ids: {
         type: "array",
-        description: "Filter by status IDs. A list of specific numeric IDs",
-        items: { type: "integer" } }
+        description: "Filter by status IDs. A list of specific numeric IDs as integers.",
+        items: { type: "integer" }
       },
       custom_fields: {
         type: "array",
@@ -31,6 +37,7 @@ class ListIssuesTool < RedmineTool
       },
       offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
       limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
+    },
     required: [],
   )
 
@@ -62,7 +69,7 @@ class ListIssuesTool < RedmineTool
       end
 
       if status_ids.present?
-        filters["status_id"] = { :operator => "=", :values => status_ids.map(&:to_s)}
+        filters["status_id"] = { :operator => "=", :values => status_ids.map(&:to_s) }
       end
 
       if custom_fields
@@ -71,7 +78,7 @@ class ListIssuesTool < RedmineTool
           unless custom_field
             return error_response("The custom field with id #{cf[:id]} was not found")
           end
-          if not custom_field.is_filter?
+          unless custom_field.is_filter?
             return error_response("The custom field with id #{cf[:id]} is not filterable")
           end
           filters["cf_#{cf[:id]}"] = { :operator => "=", :values => [cf[:value]] }

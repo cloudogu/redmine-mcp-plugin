@@ -1,5 +1,5 @@
 class UpdateIssueTool < RedmineTool
-  description "Update an issue"
+  description "Update an Redmine issue based on its numeric issue ID."
   input_schema(
     properties: {
       issue_id: {

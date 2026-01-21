@@ -43,6 +43,18 @@ class McpController < ApplicationController
       ],
       server_context: { controller: self },
       configuration: config,
+      instructions: <<~INSTRUCTIONS
+        This MCP server provides access to a Redmine system.
+
+        “Issue” and “Ticket” are synonymous and both refer to a Redmine issue.
+
+        Most operations require Redmine identifiers (projects, users, trackers, statuses, priorities, categories, custom fields).
+        Identifiers are usually numeric IDs, but some tools accept IDs as strings to allow special values such as "me".
+        When only names or labels are known, use the provided List/Find tools to resolve them to IDs before creating or updating issues.
+        Do not guess IDs, ask for more information, if necessary.
+
+        Use read and list tools to discover data first; use create and update tools only once required identifiers are known.
+      INSTRUCTIONS
     )
 
     render(json: server.handle_json(request.body.read))

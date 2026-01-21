@@ -1,5 +1,5 @@
 class GetIssueTool < RedmineTool
-  description "Retrieves detailed information for a single issue by its numeric ID."
+  description "Retrieves detailed information for a single Redmine issue by its numeric ID."
   input_schema(
     properties: {
       issue_id: { type: "integer", description: "The numeric ID of the issue to retrieve." },

@@ -1,20 +1,26 @@
 class SearchTool < RedmineTool
-  description "Search within Redmine"
+  description  <<~DESC
+    Full-text search in Redmine using a plain-text query.
+
+    Query matching is case-insensitive substring matching on whitespace-separated terms (AND by default).
+    No advanced query syntax is supported (no wildcards, quoting/negation, regex, or field operators like field:value).
+    Narrow results using the structured parameters (project_id, scope, titles_only, open_issues, etc.), not by encoding filters in the query string.
+  DESC
   input_schema(
     properties: {
-      query: { type: "string", description: "The search query" },
+      query: { type: "string", description: "Plain-text search terms." },
       project_id: { type: "integer", description: "Restrict search to a specific project ID" },
       scope: {
         type: "array",
         items: { type: "string" },
         description: "Specific types to search (e.g., 'issues', 'news', 'documents', 'changesets', 'wiki-pages', 'messages', 'projects'). If omitted, searches all types."
       },
-      all_words: { type: "boolean", default: true, description: "Match all words in query. Default is true." },
-      titles_only: { type: "boolean", description: "Search only in titles. Default is false." },
-      attachments: { type: "boolean", description: "Search in attachments. Default is false." },
-      open_issues: { type: "boolean", description: "If searching issues, restrict to open issues. Default is false." },
-      limit: { type: "integer", default: 20, description: "Number of results to return. Maximum is 100" },
-      offset: { type: "integer", default: 0, description: "Offset for pagination" }
+      all_words: { type: "boolean", default: true, description: "If true, all query terms must match; if false, any term may match. Default: true." },
+      titles_only: { type: "boolean", description: "If true, search only titles/subjects. Default: false." },
+      attachments: { type: "boolean", description: "If true, include attachment content in search (if supported). Default: false." },
+      open_issues: { type: "boolean", description: "If searching issues, restrict to open issues. Default: false." },
+      limit: { type: "integer", default: 20, description: "Number of results to return. Maximum is 100. Default: 20." },
+      offset: { type: "integer", default: 0, description: "Offset for pagination. Default: 0." }
     },
     required: ["query"]
   )

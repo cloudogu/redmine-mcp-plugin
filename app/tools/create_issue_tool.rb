@@ -1,5 +1,5 @@
 class CreateIssueTool < RedmineTool
-  description "Create an issue"
+  description "Create an Redmine issue in a given project, with a given tracker and subject."
   input_schema(
     properties: {
       project_id: {

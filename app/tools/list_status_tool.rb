@@ -1,7 +1,8 @@
 class ListStatusTool < RedmineTool
   description "Retrieves a list of all available issue statuses (e.g., New, In Progress, Resolved)."\
     "Use this tool to discover the correct numeric 'status_id' required for filtering issue searches"\
-    "or for updating an issue's status. It provides both the ID and the display name for each status."
+    "or for updating an issue's status. It provides both the ID and the display name for each status together with"\
+    "an indicator whether a ticket with this status is closed."
 
   class << self
     def call(server_context:)

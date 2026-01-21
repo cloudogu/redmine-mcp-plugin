@@ -6,6 +6,11 @@ class ListIssuesTool < RedmineTool
       tracker_id: { type: "integer", description: "The numeric ID of the tracker to filter by." },
       assigned_to_id: { type: "string", description: "The numeric ID of the assigned user, or 'me'." },
       authored_by_id: { type: "string", description: "The numeric ID of the author, or 'me'." },
+      status_ids: {
+        type: "array",
+        description: "Filter by status IDs. A list of specific numeric IDs",
+        items: { type: "integer" } }
+      },
       custom_fields: {
         type: "array",
         description: "List of custom field filters to apply.",
@@ -26,12 +31,11 @@ class ListIssuesTool < RedmineTool
       },
       offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
       limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
-    },
     required: [],
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, custom_fields: nil, offset: 0, limit: 100)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 100)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
@@ -55,6 +59,10 @@ class ListIssuesTool < RedmineTool
 
       if authored_by_id
         filters["author_id"] = { :operator => "=", :values => [authored_by_id] }
+      end
+
+      if status_ids.present?
+        filters["status_id"] = { :operator => "=", :values => status_ids.map(&:to_s)}
       end
 
       if custom_fields

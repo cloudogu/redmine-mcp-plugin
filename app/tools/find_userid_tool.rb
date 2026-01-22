@@ -1,5 +1,5 @@
 class FindUseridTool < RedmineTool
-  description "Searches for a user by login, first name, or last name to retrieve their numeric ID. This is an exclusive or operation, so only one of the three parameters can be specified."
+  description "Searches for a user by login, first name, or last name to retrieve their numeric ID."
   input_schema(
     properties: {
       query: { type: "string", description: "The search string matching the user's login, first name, or last name." },

@@ -13,7 +13,9 @@ class MeTool < RedmineTool
 
       my_user = User.current
       my_user.attributes.delete("api_key")
+      puts my_user.inspect
       json_string = render_template server_context, "my/account", { user: my_user }
+      puts json_string
 
       MCP::Tool::Response.new([{
         type: "text",

@@ -1,5 +1,14 @@
 class ListIssuesTool < RedmineTool
-  description "Retrieves a list of issues based on various filters."
+  description <<~DESCRIPTION
+    Retrieves a list of issues based on various filters.
+
+    This operation requires Redmine identifiers (projects, trackers, status, priorities, category, assigned_to, custom fields).
+    Identifiers are usually numeric IDs, but some IDs in this tool are of type string nonetheless to allow special values such as "me". 
+    When only names or labels are known, use the provided List/Find tools to resolve them to IDs 
+    before creating or updating issues. Do not guess IDs, ask for more information, if necessary.
+
+    Use read and list tools to discover data first; use this tool only once required identifiers are known.
+  DESCRIPTION
   input_schema(
     properties: {
       project_id: { type: "integer", description: "Project identifier. The numeric ID as an integer of the project to filter by." },
@@ -36,13 +45,13 @@ class ListIssuesTool < RedmineTool
         },
       },
       offset: { type: "integer", default: 0, description: "Pagination offset (default: 0)." },
-      limit: { type: "integer", default: 100, description: "Pagination limit (default: 100)." },
+      limit: { type: "integer", default: 20, description: "Pagination limit (default: 20)." },
     },
     required: [],
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 100)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 20)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?

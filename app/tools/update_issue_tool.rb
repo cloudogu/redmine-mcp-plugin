@@ -1,5 +1,13 @@
 class UpdateIssueTool < RedmineTool
-  description "Update an issue"
+  description <<~DESCRIPTION
+    Update an Redmine issue based on its numeric issue ID.
+
+    This operation requires Redmine identifiers (projects, trackers, status, priorities, category, assigned_to, custom fields).
+    Identifiers are numeric IDs. When only names or labels are known, use the provided List/Find tools to resolve them to
+    IDs before creating or updating issues. Do not guess IDs, ask for more information, if necessary.
+
+    Use read and list tools to discover data first; use this tool only once required identifiers are known.
+  DESCRIPTION
   input_schema(
     properties: {
       issue_id: {

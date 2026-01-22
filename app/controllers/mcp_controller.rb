@@ -42,7 +42,7 @@ class McpController < ApplicationController
         ListCategoriesTool,
       ],
       server_context: { controller: self },
-      configuration: config,
+      configuration: config
     )
 
     render(json: server.handle_json(request.body.read))

@@ -1,5 +1,14 @@
 class CreateIssueTool < RedmineTool
-  description "Create an issue"
+  description <<~DESCRIPTION
+    Create an Redmine issue in a given project, with a given tracker and subject.
+
+    This operation requires Redmine identifiers (projects, trackers, status, priorities, category, assigned_to, custom fields).
+    Identifiers are numeric IDs. When only names or labels are known, use the provided List/Find tools to resolve them to
+    IDs before creating or updating issues. Do not guess IDs, ask for more information, if necessary.
+    Do not create issues (no test issues either) until explicitly told to do so.
+
+    Use read and list tools to discover data first; use this tool only once required identifiers are known.
+  DESCRIPTION
   input_schema(
     properties: {
       project_id: {
@@ -96,7 +105,7 @@ class CreateIssueTool < RedmineTool
         author: user
       )
 
-      issue.safe_attributes=(kwargs.compact)
+      issue.safe_attributes = (kwargs.compact)
 
       if issue.save
         json_string = render_template_json server_context, "issues/show", { issue: issue }

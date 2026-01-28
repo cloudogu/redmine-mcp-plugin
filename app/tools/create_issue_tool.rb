@@ -102,10 +102,11 @@ class CreateIssueTool < RedmineTool
       end
 
       issue = Issue.new(
-        author: user
+        author: user,
+        project: project
       )
 
-      issue.safe_attributes = (kwargs.compact)
+      issue.safe_attributes = kwargs.except(:project_id).compact
 
       if issue.save
         json_string = render_template_json server_context, "issues/show", { issue: issue }

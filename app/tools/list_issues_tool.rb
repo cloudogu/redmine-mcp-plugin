@@ -17,6 +17,14 @@ class ListIssuesTool < RedmineTool
         type: "string",
         description: "Assigned user identifier. Provide the numeric Redmine user ID as a string, or the literal value 'me' to refer to the currently authenticated user."
       },
+      priority_id: {
+        type: "integer",
+        description: "Priority identifier. The numeric ID as an integer of the tickets priority to filter by."
+      },
+      category_id: {
+        type: "integer",
+        description: "Issue category identifier. The numeric ID as an integer of the tickets category to filter by."
+      },
       authored_by_id: {
         type: "string",
         description: "Author identifier. Provide the numeric Redmine user ID as a string, or the literal value 'me' to refer to the currently authenticated user."
@@ -51,7 +59,7 @@ class ListIssuesTool < RedmineTool
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 20)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, priority_id: nil, category_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 20)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
@@ -71,6 +79,14 @@ class ListIssuesTool < RedmineTool
 
       if assigned_to_id
         filters["assigned_to_id"] = { :operator => "=", :values => [assigned_to_id] }
+      end
+
+      if priority_id
+        filters["priority_id"] = { :operator => "=", :values => [priority_id] }
+      end
+
+      if category_id
+        filters["category_id"] = { :operator => "=", :values => [category_id] }
       end
 
       if authored_by_id

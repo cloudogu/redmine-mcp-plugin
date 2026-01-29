@@ -26,6 +26,16 @@ class ListIssuesTool < RedmineTool
         description: "Filter by status IDs. A list of specific numeric IDs as integers.",
         items: { type: "integer" }
       },
+      priority_ids: {
+        type: "array",
+        description: "Filter by priority IDs. A list of specific numeric IDs as integers.",
+        items: { type: "integer" }
+      },
+      category_ids: {
+        type: "array",
+        description: "Filter by category IDs. A list of specific numeric IDs as integers.",
+        items: { type: "integer" }
+      },
       custom_fields: {
         type: "array",
         description: "List of custom field filters to apply.",
@@ -51,7 +61,7 @@ class ListIssuesTool < RedmineTool
   )
 
   class << self
-    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 20)
+    def call(server_context:, project_id: nil, tracker_id: nil, assigned_to_id: nil, priority_ids: nil, category_ids: nil, authored_by_id: nil, status_ids: nil, custom_fields: nil, offset: 0, limit: 20)
       if project_id
         project = Project.find_by(id: project_id)
         if project.nil?
@@ -79,6 +89,14 @@ class ListIssuesTool < RedmineTool
 
       if status_ids.present?
         filters["status_id"] = { :operator => "=", :values => status_ids.map(&:to_s) }
+      end
+
+      if priority_ids.present?
+        filters["priority_id"] = { :operator => "=", :values => priority_ids.map(&:to_s) }
+      end
+
+      if category_ids.present?
+        filters["category_id"] = { :operator => "=", :values => category_ids.map(&:to_s) }
       end
 
       if custom_fields

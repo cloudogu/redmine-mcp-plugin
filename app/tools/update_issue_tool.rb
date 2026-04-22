@@ -105,18 +105,14 @@ class UpdateIssueTool < RedmineTool
       issue = Issue.find_by(id: issue_id)
 
       return error_response("could not find issue with ID #{issue_id}") unless issue
-      return error_response"user has no permissions to view issue with ID #{issue_id}" unless issue.visible?
+      return error_response("user has no permissions to view issue with ID #{issue_id}") unless issue.visible?
       return error_response("user has no permissions to edit issue with ID #{issue_id}") unless issue.editable?
 
-      notes = kwargs.delete(:notes)
       private_notes = !!kwargs.delete(:private_notes)
       attrs = kwargs.except(:issue_id).compact.deep_stringify_keys
 
-      if notes.present?
-        journal = issue.init_journal(User.current, notes)
-        journal.private_notes = true if private_notes
-      end
-
+      journal = issue.init_journal(User.current)
+      journal.private_notes = true if private_notes
       issue.safe_attributes = attrs
 
       if issue.save

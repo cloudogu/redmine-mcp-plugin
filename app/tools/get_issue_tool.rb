@@ -15,12 +15,15 @@ class GetIssueTool < RedmineTool
         return error_response("No issue found with ID #{issue_id}.")
       end
 
+      project = Project.find_by(id: issue.project_id)
+
       unless issue.visible?
         return error_response("You do not have permission to view issue ##{issue_id}.")
       end
 
       json_string = render_template server_context, "issues/show", {
         issue: issue,
+        project: project
       }
 
       text_response(json_string)
